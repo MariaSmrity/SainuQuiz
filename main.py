@@ -161,19 +161,6 @@ async def update_profile(data: ProfileUpdate):
     conn.close()
     return {"status": "success"}
 
-@app.get("/checkout", response_class=HTMLResponse)
-async def checkout_page(request: Request):
-    return """
-    <html>
-        <body style="font-family: sans-serif; text-align: center; padding: 50px;">
-            <h1>Complete Your Upgrade</h1>
-            <p>To get Pro features for 2.59€ per month, please send payment via PayPal:</p>
-            <a href="https://www.paypal.com" style="background: #0070ba; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold;">Pay 2.59€ with PayPal</a>
-            <br><br>
-            <a href="/my_quizzes" style="color: #888;">Go Back</a>
-        </body>
-    </html>
-    """
 
 # --- PRODUCTION STARTUP ---
 if __name__ == "__main__":
