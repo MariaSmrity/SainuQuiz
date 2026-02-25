@@ -3,81 +3,165 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SainuQuiz! - Sign Up</title>
+    <title>Sign Up - SainuQuiz!</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #1ca472; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .card { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
-        h1 { color: #18bf7c; margin-bottom: 30px; }
-        
-        .input-group { position: relative; margin-bottom: 20px; text-align: left; }
-        label { display: block; margin-bottom: 8px; font-weight: bold; color: #555; }
-        input { width: 100%; padding: 12px; border: 2px solid #eee; border-radius: 8px; box-sizing: border-box; font-size: 1rem; }
-        input:focus { border-color: #18bf7c; outline: none; }
-
-        /* Password Toggle Styling */
-        .password-wrapper { position: relative; }
-        .toggle-btn { 
-            position: absolute; 
-            right: 12px; 
-            top: 50%; 
-            transform: translateY(-50%); 
-            background: none; 
-            border: none; 
-            cursor: pointer; 
-            font-size: 1.2rem; 
-            color: #888;
+        body {
+            background-color: #228B22; /* Forest Green */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
         }
 
-        .btn-signup { background: #18bf7c; color: white; border: none; width: 100%; padding: 15px; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; }
-        .btn-signup:hover { background: #14a369; }
-        .footer-link { margin-top: 20px; font-size: 0.9rem; color: #777; }
-        .footer-link a { color: #18bf7c; text-decoration: none; font-weight: bold; }
+        h1 {
+            color: white;
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .white-box {
+            background-color: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0px 10px 25px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 400px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 16px;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #228B22;
+        }
+
+        .password-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .toggle-btn {
+            position: absolute;
+            right: 10px;
+            background: #eee;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            color: #333;
+            padding: 4px 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 10px;
+        }
+
+        .submit-btn {
+            background-color: #000000; /* Black Button */
+            color: white;
+            border: none;
+            padding: 15px;
+            width: 100%;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 10px;
+        }
+
+        .submit-btn:hover {
+            background-color: #333333;
+        }
+
+        .footer-text {
+            margin-top: 20px;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .footer-text a {
+            color: #f1c40f; /* Yellow Highlight */
+            text-decoration: none;
+            font-weight: bold;
+            background-color: rgba(241, 196, 15, 0.1);
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+
+        .footer-text a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
 
-    <div class="card">
-        <h1>SainuQuiz!</h1>
-        <form action="/signup" method="POST">
+    <h1>SainuQuiz!</h1>
+
+    <div class="white-box">
+        <form action="/discover">
             <div class="input-group">
-                <label>Username</label>
-                <input type="text" name="username" placeholder="Choose a name" required>
-            </div>
-            
-            <div class="input-group">
-                <label>Email</label>
-                <input type="email" name="email" placeholder="email@example.com" required>
+                <label for="username">Username</label>
+                <input type="text" id="username" placeholder="Choose a Username" required>
             </div>
 
             <div class="input-group">
-                <label>Password</label>
-                <div class="password-wrapper">
-                    <input type="password" name="password" id="passwordField" placeholder="Create a password" required>
-                    <button type="button" class="toggle-btn" onclick="togglePassword()">👁️</button>
+                <label for="email">Email</label>
+                <input type="email" id="email" placeholder="Email address" required>
+            </div>
+
+            <div class="input-group">
+                <label for="password">Password</label>
+                <div class="password-container">
+                    <input type="password" id="password" placeholder="Choose a Password" required>
+                    <button type="button" class="toggle-btn" onclick="togglePassword()">SHOW</button>
                 </div>
             </div>
 
-            <button type="submit" class="btn-signup">Sign Up</button>
+            <button type="submit" class="submit-btn">Sign Up</button>
         </form>
 
-        <div class="footer-link">
+        <p class="footer-text">
             Already have an account? <a href="/login">Log In</a>
-        </div>
+        </p>
     </div>
 
     <script>
         function togglePassword() {
-            const passwordField = document.getElementById('passwordField');
+            const passwordInput = document.getElementById('password');
             const toggleBtn = document.querySelector('.toggle-btn');
-            
-            if (passwordField.type === "password") {
-                passwordField.type = "text";
-                toggleBtn.innerText = "🔒"; // Change icon to locked when showing
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleBtn.textContent = 'HIDE';
             } else {
-                passwordField.type = "password";
-                toggleBtn.innerText = "👁️"; // Change back to eye when hidden
+                passwordInput.type = 'password';
+                toggleBtn.textContent = 'SHOW';
             }
         }
     </script>
+
 </body>
 </html>

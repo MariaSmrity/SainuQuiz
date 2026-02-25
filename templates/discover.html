@@ -3,62 +3,179 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SainuQuiz! - Discover</title>
+    <title>Discover - SainuQuiz!</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; background-color: #f4f7f6; height: 100vh; overflow: hidden; }
-        
-        /* Sidebar Styles */
-        .sidebar { width: 250px; background-color: white; border-right: 1px solid #ddd; display: flex; flex-direction: column; padding: 20px; flex-shrink: 0; height: 100%; box-sizing: border-box; }
-        .sidebar-brand { font-size: 1.5rem; font-weight: bold; color: #18bf7c; margin-bottom: 40px; text-decoration: none; }
-        .nav-links { flex-grow: 1; }
-        .nav-item { padding: 12px 15px; text-decoration: none; color: #555; font-weight: 500; border-radius: 8px; margin-bottom: 5px; display: block; transition: 0.3s; }
-        .nav-item:hover { background-color: #f0fdf4; color: #18bf7c; }
-        .nav-item.active { background-color: #18bf7c; color: white; }
-        
-        /* Pro Card pinned to bottom */
-        .pro-card { background: linear-gradient(135deg, #ffce67, #ffab00); padding: 15px; border-radius: 12px; margin-top: auto; color: white; text-align: center; }
-        .btn-pro { display: inline-block; margin-top: 10px; padding: 8px 15px; background: white; color: #ffab00; border-radius: 5px; text-decoration: none; font-weight: bold; font-size: 0.8rem; }
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            height: 100vh;
+            background-color: white;
+        }
 
-        /* Main Content Area */
-        .main-content { flex: 1; padding: 40px; overflow-y: auto; }
-        .search-bar { width: 100%; padding: 15px; border-radius: 10px; border: 1px solid #ddd; margin-bottom: 30px; font-size: 1rem; box-sizing: border-box; }
-        
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
-        
-        /* Empty State */
-        .empty-state { text-align: center; padding: 100px 20px; color: #888; background: white; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        .empty-icon { font-size: 3rem; margin-bottom: 15px; display: block; }
+        /* Sidebar Styling */
+        .sidebar {
+            width: 250px;
+            background-color: #3b8132;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            padding-bottom: 10px;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: white;
+            text-align: left;
+            padding: 15px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background 0.3s;
+            text-decoration: none;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-btn:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        .active {
+            background-color: rgba(0,0,0,0.2);
+        }
+
+        /* Main Content Styling */
+        .main-content {
+            flex-grow: 1;
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #333;
+            margin: 0;
+        }
+
+        .search-bar {
+            width: 100%;
+            max-width: 600px;
+            padding: 15px;
+            font-size: 1rem;
+            border: 2px solid #ddd;
+            border-radius: 30px;
+            outline: none;
+            margin: 30px 0;
+            transition: border-color 0.3s;
+        }
+
+        .search-bar:focus {
+            border-color: #3b8132;
+        }
+
+        /* Quiz Grid */
+        .quiz-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 25px;
+        }
+
+        .quiz-card {
+            border: 1px solid #eee;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            text-align: center;
+            background: white;
+            transition: transform 0.2s;
+        }
+
+        .quiz-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .quiz-img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            background-color: #f0f0f0;
+        }
+
+        .quiz-info {
+            padding: 15px;
+        }
+
+        .quiz-title {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+            color: #333;
+        }
+
+        .host-btn {
+            background-color: #f1c40f;
+            color: black;
+            padding: 10px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            display: block;
+            transition: background 0.3s;
+        }
+
+        .host-btn:hover {
+            background-color: #d4ac0d;
+        }
+
+        .no-quizzes {
+            color: #777;
+            font-style: italic;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
 
     <div class="sidebar">
-        <a href="/" class="sidebar-brand">SainuQuiz!</a>
-        <div class="nav-links">
-            <a href="/my_quizzes" class="nav-item">🏠 My Quizzes</a>
-            <a href="/discover" class="nav-item active">🌐 Discover</a>
-            <a href="/reports" class="nav-item">📊 Reports</a>
-            <a href="/account" class="nav-item">👤 My Account</a>
-            <a href="/" class="nav-item">🚪 Logout</a>
-        </div>
-
-        <div class="pro-card">
-            <p style="margin:0; font-weight:bold;">SainuQuiz! Pro</p>
-            <p style="font-size: 0.75rem; margin: 5px 0;">Only 2.59€ / month</p>
-            <a href="/subscription" class="btn-pro">GET PRO</a>
-        </div>
+        <h2>SainuQuiz!</h2>
+        <a href="/my-quizzes" class="nav-btn">📝 My Quizzes</a>
+        <a href="/discover" class="nav-btn active">📗 Discover</a>
+        <a href="/account" class="nav-btn">👨‍🦲 My Account</a>
+        <a href="/" class="nav-btn" style="margin-top: auto;">🔙 Log out</a>
     </div>
 
     <div class="main-content">
-        <h1>Discover Quizzes</h1>
+        <h1>Discover SainuQuizzes</h1>
+        
         <input type="text" class="search-bar" placeholder="Search for quizzes...">
 
-        <div class="grid" id="quizGrid">
-            <div class="empty-state">
-                <span class="empty-icon">🔎</span>
-                <h2>No public quizzes found yet!</h2>
-                <p>Be the first to create a quiz and share it with the world.</p>
-            </div>
+        <div class="quiz-grid">
+            {% if all_quizzes %}
+                {% for quiz in all_quizzes %}
+                    <div class="quiz-card">
+                        <img src="{{ quiz.image_url or 'https://via.placeholder.com/250x150?text=SainuQuiz' }}" class="quiz-img">
+                        <div class="quiz-info">
+                            <span class="quiz-title">{{ quiz.title }}</span>
+                            <a href="/host/{{ quiz.id }}" class="host-btn">Host this Quiz</a>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p class="no-quizzes">No community quizzes available yet. You can be the first to create one! </p>
+            {% endif %}
         </div>
     </div>
 

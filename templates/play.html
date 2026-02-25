@@ -3,63 +3,172 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SainuQuiz! - Join Game</title>
-    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <title>Join Game - SainuQuiz!</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #18bf7c; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .play-card { background: white; color: #333; padding: 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 90%; max-width: 400px; text-align: center; }
-        h1 { color: #18bf7c; margin-bottom: 20px; }
-        input { width: 100%; padding: 15px; margin: 10px 0; border: 2px solid #eee; border-radius: 10px; font-size: 1.2rem; box-sizing: border-box; text-align: center; }
-        input:focus { border-color: #18bf7c; outline: none; }
-        .btn-join { background: #333; color: white; border: none; width: 100%; padding: 15px; border-radius: 10px; font-size: 1.2rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        .btn-join:hover { background: #000; }
-        #lobby-status { display: none; margin-top: 20px; color: #18bf7c; font-weight: bold; }
+        body {
+            background-color: #228B22; /* Your Forest Green */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            color: white;
+            overflow: hidden;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 30px;
+            text-shadow: 2px 4px 10px rgba(0,0,0,0.3);
+            font-weight: 900;
+        }
+
+        /* The Input Card */
+        .join-card {
+            background-color: white;
+            padding: 40px;
+            border-radius: 18px;
+            box-shadow: 0px 15px 35px rgba(0,0,0,0.4);
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            transition: all 0.4s ease;
+        }
+
+        input {
+            width: 100%;
+            padding: 18px;
+            margin-bottom: 25px;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            box-sizing: border-box;
+            font-size: 1.6rem;
+            text-align: center;
+            font-weight: bold;
+            outline: none;
+            color: #333;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            border-color: #228B22;
+            background-color: #fafafa;
+        }
+
+        .btn-enter {
+            background-color: #000000; /* Boss Black */
+            color: white;
+            border: none;
+            padding: 18px;
+            width: 100%;
+            border-radius: 10px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.3s;
+        }
+
+        .btn-enter:hover {
+            background-color: #333;
+            transform: scale(1.03);
+        }
+
+        /* Phase Switching Logic */
+        #nickname-phase {
+            display: none; /* Starts hidden */
+        }
+
+        .fade-in {
+            animation: fadeIn 0.4s forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .back-btn {
+            display: block;
+            margin-top: 20px;
+            color: #999;
+            font-size: 0.95rem;
+            text-decoration: none;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .back-btn:hover {
+            color: #228B22;
+        }
     </style>
 </head>
 <body>
 
-    <div class="play-card" id="join-section">
-        <h1>SainuQuiz!</h1>
-        <input type="text" id="gamePin" placeholder="Game PIN" maxlength="6">
-        <input type="text" id="playerName" placeholder="Nickname">
-        <button class="btn-join" onclick="joinLobby()">Enter</button>
-    </div>
+    <h1>SainuQuiz!</h1>
 
-    <div class="play-card" id="lobby-section" style="display: none;">
-        <h1>You're In!</h1>
-        <p>Wait for the host to start the game...</p>
-        <div id="lobby-status">Connected to Lobby ✅</div>
+    <div class="join-card">
+        <form action="/gameplay" method="POST" id="main-join-form">
+            
+            <div id="pin-phase">
+                <input type="text" 
+                       id="game-pin" 
+                       name="pin" 
+                       placeholder="Game PIN" 
+                       maxlength="6" 
+                       inputmode="numeric" 
+                       required 
+                       autocomplete="off">
+                <button type="button" class="btn-enter" onclick="goToNickname()">Enter</button>
+            </div>
+
+            <div id="nickname-phase" class="fade-in">
+                <input type="text" 
+                       id="player-nick" 
+                       name="nickname" 
+                       placeholder="Nickname" 
+                       maxlength="15" 
+                       required 
+                       autocomplete="off">
+                <button type="submit" class="btn-enter">OK, Go!</button>
+                <span class="back-btn" onclick="goToPin()">← Change PIN</span>
+            </div>
+
+        </form>
     </div>
 
     <script>
-        const socket = io();
+        const pinPhase = document.getElementById('pin-phase');
+        const nickPhase = document.getElementById('nickname-phase');
+        const pinInput = document.getElementById('game-pin');
+        const nickInput = document.getElementById('player-nick');
 
-        // Check if PIN is in the URL (from QR code)
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.has('pin')) {
-            document.getElementById('gamePin').value = urlParams.get('pin');
-        }
-
-        function joinLobby() {
-            const pin = document.getElementById('gamePin').value;
-            const name = document.getElementById('playerName').value;
-
-            if (pin && name) {
-                // Tell the server we are joining
-                socket.emit('join', { pin: pin, name: name });
-                
-                // Switch UI
-                document.getElementById('join-section').style.display = 'none';
-                document.getElementById('lobby-section').style.display = 'block';
+        function goToNickname() {
+            // Check if user actually typed something for the PIN
+            if (pinInput.value.trim().length >= 4) {
+                pinPhase.style.display = 'none';
+                nickPhase.style.display = 'block';
+                nickInput.focus(); // Auto-focus nickname box
             } else {
-                alert("Please enter both a PIN and a Nickname!");
+                alert("Please enter a valid 4-6 digit Game PIN.");
             }
         }
 
-        socket.on('game_started', () => {
-            alert("The game is starting now!");
-            // Later we will redirect to the first question here
+        function goToPin() {
+            nickPhase.style.display = 'none';
+            pinPhase.style.display = 'block';
+            pinInput.focus();
+        }
+
+        // Allow 'Enter' key to trigger the button in the PIN phase
+        pinInput.addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                goToNickname();
+            }
         });
     </script>
+
 </body>
 </html>

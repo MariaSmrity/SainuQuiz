@@ -3,36 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SainuQuiz! - Play</title>
-    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <title>SainuQuiz! - Live</title>
     <style>
-        body { margin: 0; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; height: 100vh; gap: 5px; background: #2c3e50; }
-        .btn { border: none; font-size: 3rem; color: white; cursor: pointer; }
-        .red { background: #e74c3c; } .blue { background: #3498db; }
-        .yellow { background: #f1c40f; } .green { background: #18bf7c; }
-        #waiting { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); color: white; display: none; align-items: center; justify-content: center; font-size: 2rem; }
+        body {
+            margin: 0; font-family: 'Segoe UI', sans-serif;
+            background-color: #228B22; color: white;
+            display: flex; flex-direction: column; height: 100vh; overflow: hidden;
+        }
+
+        /* Top Bar */
+        .status-bar {
+            background: white; color: #333; padding: 15px 25px;
+            display: flex; justify-content: space-between; align-items: center; 
+            font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .timer-badge {
+            background: #fa2a55; color: white; width: 45px; height: 45px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem;
+        }
+
+        /* Container for all phases */
+        .phase { display: none; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; text-align: center; padding: 20px; }
+
+        /* PHASE 1: WAITING */
+        #phase-waiting { display: flex; }
+        .loader { border: 5px solid rgba(255,255,255,0.2); border-top: 5px solid white; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin-bottom: 20px; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* PHASE 2: ANSWERING */
+        #phase-answering { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 15px; padding: 15px; }
+        .answer-btn { border: none; border-radius: 12px; cursor: pointer; box-shadow: 0 6px 0px rgba(0,0,0,0.2); transition: 0.1s; }
+        .answer-btn:active { transform: translateY(4px); box-shadow: 0 2px 0px rgba(0,0,0,0.2); }
+        .red { background-color: #e21b3c; } .blue { background-color: #1368ce; } .yellow { background-color: #d89e00; } .green { background-color: #26890c; }
+
+        /* PHASE 3: CHECKING */
+        .pulse-text { font-size: 2.2rem; font-weight: bold; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); opacity: 0.8; } }
+
+        /* PHASE 4: LEADERBOARD (Personal) */
+        .rank-card { background: white; color: #228B22; padding: 30px; border-radius: 20px; width: 80%; max-width: 300px; }
+        .rank-num { font-size: 5rem; font-weight: 900; margin: 0; }
+
+        /* PHASE 5: TOP 3 PODIUM (Final Results) */
+        .podium { display: flex; align-items: flex-end; gap: 10px; height: 200px; margin-top: 20px; }
+        .podium-step { background: white; width: 60px; border-radius: 8px 8px 0 0; color: #333; font-weight: bold; display: flex; flex-direction: column; justify-content: flex-end; padding-bottom: 10px; }
+        .gold { height: 150px; background: #FFD700; }
+        .silver { height: 110px; background: #C0C0C0; }
+        .bronze { height: 80px; background: #CD7F32; }
     </style>
 </head>
 <body>
-    <button class="btn red" onclick="send(1)">▲</button>
-    <button class="btn blue" onclick="send(2)">◆</button>
-    <button class="btn yellow" onclick="send(3)">●</button>
-    <button class="btn green" onclick="send(4)">■</button>
-    <div id="waiting">Answer Sent! Look at the big screen...</div>
+
+    <div class="status-bar">
+        <div id="player-name">Sainu</div>
+        <div class="timer-badge" id="timer-val">20</div>
+        <div id="player-score">0 pts</div>
+    </div>
+
+    <div id="phase-waiting" class="phase">
+        <div class="loader"></div>
+        <h2>Waiting for Question...</h2>
+    </div>
+
+    <div id="phase-answering" class="phase">
+        <button class="answer-btn red" onclick="submitAnswer('A')"></button>
+        <button class="answer-btn blue" onclick="submitAnswer('B')"></button>
+        <button class="answer-btn yellow" onclick="submitAnswer('C')"></button>
+        <button class="answer-btn green" onclick="submitAnswer('D')"></button>
+    </div>
+
+    <div id="phase-checking" class="phase">
+        <div class="loader"></div>
+        <div class="pulse-text">Checking your Answer...</div>
+    </div>
+
+    <div id="phase-leaderboard" class="phase">
+        <div class="rank-card">
+            <h1 class="rank-num">#1</h1>
+            <p>You're in the lead!</p>
+        </div>
+    </div>
+
+    <div id="phase-final" class="phase">
+        <h1>🏆 Final Results</h1>
+        <div class="podium">
+            <div class="podium-step silver">2nd</div>
+            <div class="podium-step gold">1st</div>
+            <div class="podium-step bronze">3rd</div>
+        </div>
+        <h2 style="margin-top: 30px;">Congratulations!</h2>
+        <button onclick="location.href='/'" style="padding:10px 20px; border-radius:10px; border:none; cursor:pointer;">Exit Game</button>
+    </div>
 
     <script>
-        const socket = io("/");
-        function send(choice) {
-            document.getElementById('waiting').style.display = 'flex';
-            socket.emit('submit_answer', { answer: choice });
+        // MASTER SWITCH: Use this to change phases
+        function setPhase(phaseName) {
+            document.querySelectorAll('.phase').forEach(p => p.style.display = 'none');
+            const target = document.getElementById('phase-' + phaseName);
+            target.style.display = (phaseName === 'answering') ? 'grid' : 'flex';
         }
-        socket.on('show_question', () => {
-            document.getElementById('waiting').style.display = 'none';
+
+        function submitAnswer(choice) {
+            setPhase('checking');
+            // Logic to send choice to Railway goes here
+        }
+
+        // SPACEBAR FEATURE: Cycle phases (for Host testing)
+        window.addEventListener('keydown', function(e) {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                // This logic moves through the phases you requested in order
+                const current = Array.from(document.querySelectorAll('.phase')).find(p => p.style.display !== 'none').id;
+                if (current === 'phase-waiting') setPhase('answering');
+                else if (current === 'phase-checking') setPhase('leaderboard');
+                else if (current === 'phase-leaderboard') setPhase('waiting'); // Start next question
+                // To trigger final: setPhase('final')
+            }
         });
     </script>
-    socket.on('show_final_podium', () => {
-    document.getElementById('waiting').innerHTML = "<h2>Game Over!</h2><p>Check the podium for winners!</p>";
-    document.getElementById('waiting').style.display = 'flex';
-});
 </body>
 </html>

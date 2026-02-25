@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creator: Live Games - SainuQuiz!</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            height: 100vh;
+            background-color: #d8d8d8; /* Boss Background */
+        }
+
+        /* Sidebar - Consistent Creator Theme */
+        .sidebar {
+            width: 260px;
+            background-color: #fa2a55; /* Boss Pink-Red */
+            color: white;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            font-size: 1.6rem;
+            margin-bottom: 30px;
+            border-bottom: 2px solid rgba(255,255,255,0.2);
+            padding-bottom: 10px;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: white;
+            text-align: left;
+            padding: 15px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            border-radius: 8px;
+            text-decoration: none;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            transition: 0.2s;
+        }
+
+        .nav-btn:hover {
+            background-color: rgba(0,0,0,0.1);
+        }
+
+        .active {
+            background-color: rgba(0,0,0,0.25);
+            font-weight: bold;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex-grow: 1;
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        .live-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .live-dot {
+            height: 15px;
+            width: 15px;
+            background-color: #ff0000;
+            border-radius: 50%;
+            display: inline-block;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(255, 0, 0, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); }
+        }
+
+        /* Live Games Grid */
+        .live-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .live-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            border-left: 8px solid #fa2a55;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .quiz-name {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #333;
+            margin: 0;
+        }
+
+        .host-info {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .pin-section {
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .pin-label {
+            display: block;
+            font-size: 0.8rem;
+            color: #888;
+            text-transform: uppercase;
+        }
+
+        .pin-number {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #fa2a55;
+            letter-spacing: 2px;
+        }
+
+        .watch-btn {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 12px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background 0.3s;
+            margin-top: 5px;
+        }
+
+        .watch-btn:hover {
+            background-color: #000;
+        }
+
+        .empty-message {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 50px;
+            background: white;
+            border-radius: 15px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2>👑 Creator</h2>
+        <a href="/creator/users" class="nav-btn">Users 🫂</a>
+        <a href="https://gemini.google.com" target="_blank" class="nav-btn">Gemini 🫆</a>
+        <a href="/creator/discover" class="nav-btn">Discover 📗</a>
+        <a href="/creator/live" class="nav-btn active">Live 🔴</a>
+        <a href="/my-quizzes" class="nav-btn" style="margin-top: auto;">🔙 Exit Panel</a>
+    </div>
+
+    <div class="main-content">
+        <div class="live-header">
+            <span class="live-dot"></span>
+            <h1>Live Quizzes</h1>
+        </div>
+
+        <div class="live-grid">
+            <div class="live-card">
+                <p class="quiz-name">Science Extravaganza</p>
+                <div class="host-info">👤 Host: <strong>Sainu_Fan_99</strong></div>
+                <div class="pin-section">
+                    <span class="pin-label">Game PIN</span>
+                    <span class="pin-number">441 029</span>
+                </div>
+                <a href="#" class="watch-btn">Watch Live 📺</a>
+            </div>
+
+            <div class="live-card" style="border-left-color: #333;">
+                <p class="quiz-name">Math Blitz</p>
+                <div class="host-info">👤 Host: <strong>AlgebraKing</strong></div>
+                <div class="pin-section">
+                    <span class="pin-label">Game PIN</span>
+                    <span class="pin-number">992 331</span>
+                </div>
+                <a href="#" class="watch-btn">Watch Live 📺</a>
+            </div>
+
+            </div>
+    </div>
+
+</body>
+</html>

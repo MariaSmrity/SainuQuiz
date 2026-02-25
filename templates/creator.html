@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creator Panel - SainuQuiz!</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            height: 100vh;
+            background-color: #d8d8d8; /* Grey Background */
+            overflow: hidden;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            width: 260px;
+            background-color: #fa2a55; /* Boss Pink-Red */
+            color: white;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-shadow: 4px 0 10px rgba(0,0,0,0.15);
+            z-index: 10;
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            font-size: 1.6rem;
+            margin-bottom: 30px;
+            border-bottom: 2px solid rgba(255,255,255,0.2);
+            padding-bottom: 10px;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: white;
+            text-align: left;
+            padding: 15px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            border-radius: 8px;
+            text-decoration: none;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            transition: 0.2s;
+        }
+
+        .nav-btn:hover {
+            background-color: rgba(0,0,0,0.1);
+        }
+
+        .active {
+            background-color: rgba(0,0,0,0.25);
+            font-weight: bold;
+        }
+
+        /* Content Sections */
+        .main-content {
+            flex-grow: 1;
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        .content-section {
+            display: none; /* Hidden by default */
+        }
+
+        .content-section.active-section {
+            display: block; /* Shown when clicked */
+        }
+
+        h1 {
+            color: #333;
+            font-size: 2.2rem;
+            margin-top: 0;
+        }
+
+        /* Users Table Styling */
+        .search-bar {
+            width: 100%;
+            max-width: 400px;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #bbb;
+            margin-bottom: 20px;
+            font-size: 1rem;
+        }
+
+        .user-table {
+            width: 100%;
+            background: white;
+            border-collapse: collapse;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .user-table th {
+            background-color: #f1f1f1;
+            padding: 15px;
+            text-align: left;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .user-table td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        /* Live Games Cards */
+        .live-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .live-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            border-top: 6px solid #fa2a55;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .game-pin {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #fa2a55;
+            background: #eee;
+            padding: 5px 10px;
+            border-radius: 5px;
+            display: inline-block;
+            margin: 10px 0;
+        }
+
+        .watch-btn {
+            display: block;
+            text-align: center;
+            background-color: #333;
+            color: white;
+            padding: 10px;
+            text-decoration: none;
+            border-radius: 6px;
+            margin-top: 10px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2>👑 Creator</h2>
+        <button class="nav-btn active" onclick="showSection('users')">Users 🫂</button>
+        <a href="https://gemini.google.com" target="_blank" class="nav-btn">Gemini 🫆</a>
+        <button class="nav-btn" onclick="showSection('discover')">Discover 📗</button>
+        <button class="nav-btn" onclick="showSection('live')">Live 🔴</button>
+        
+        <a href="/my-quizzes" class="nav-btn" style="margin-top: auto;">🔙 Exit Panel</a>
+    </div>
+
+    <div class="main-content">
+
+        <div id="users" class="content-section active-section">
+            <h1>User Management</h1>
+            <input type="text" class="search-bar" placeholder="Search usernames or emails...">
+            <table class="user-table">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Email</th>
+                    </tr>
+                </thead>
+                <tbody id="user-list">
+                    <tr>
+                        <td>Sainu_214</td>
+                        <td>sainu.quiz@gmail.com</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="discover" class="content-section">
+            <h1>Global Discover (Creator Mode)</h1>
+            <p>Here you can see every quiz created on the platform.</p>
+            </div>
+
+        <div id="live" class="content-section">
+            <h1>Live Quizzes 🔴</h1>
+            <div class="live-grid">
+                <div class="live-card">
+                    <h3>Geography Titans</h3>
+                    <p>Host: Saihan_Fan_1</p>
+                    <div class="game-pin">552 101</div>
+                    <a href="#" class="watch-btn">Watch Live</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Function to switch between the sub-pages without reloading
+        function showSection(sectionId) {
+            // Remove active class from all sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active-section');
+            });
+            // Remove active class from all buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show the clicked section
+            document.getElementById(sectionId).classList.add('active-section');
+            
+            // Highlight the clicked button
+            event.currentTarget.classList.add('active');
+            
+            // Update URL in browser (Optional, but looks cool)
+            window.history.pushState({}, '', '/creator/' + sectionId);
+        }
+    </script>
+
+</body>
+</html>

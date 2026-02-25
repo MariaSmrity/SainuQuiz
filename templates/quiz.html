@@ -2,116 +2,128 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>SainuQuiz! - Live Stage</title>
-    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Details - SainuQuiz!</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #2c3e50; color: white; text-align: center; padding: 20px; }
-        .container { max-width: 800px; margin: auto; background: #34495e; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .timer { font-size: 3rem; color: #18bf7c; font-weight: bold; margin-bottom: 10px; }
-        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
-        .option { padding: 20px; border-radius: 10px; font-weight: bold; text-align: left; border: 3px solid rgba(255,255,255,0.1); }
-        .opt-1 { background: #e74c3c; } .opt-2 { background: #3498db; }
-        .opt-3 { background: #f1c40f; } .opt-4 { background: #18bf7c; }
-        
-        /* Podium Styles */
-        .podium { display: flex; justify-content: center; align-items: flex-end; gap: 20px; height: 300px; margin-top: 50px; }
-        .step { width: 120px; background: #18bf7c; display: flex; flex-direction: column; justify-content: flex-start; padding-top: 20px; border-radius: 10px 10px 0 0; position: relative; }
-        .step.gold { height: 250px; background: #f1c40f; color: #333; }
-        .step.silver { height: 180px; background: #bdc3c7; color: #333; }
-        .step.bronze { height: 120px; background: #cd7f32; }
-        .name { font-weight: bold; font-size: 1.2rem; position: absolute; top: -30px; width: 100%; left: 0; }
-        
-        .btn-next { background: #18bf7c; color: white; border: none; padding: 15px 40px; border-radius: 10px; cursor: pointer; margin-top: 30px; font-size: 1.2rem; font-weight: bold; }
-        .hidden { display: none; }
+        body {
+            background-color: #228B22; /* Forest Green */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: white;
+        }
+
+        .details-card {
+            background: white;
+            color: #333;
+            width: 90%;
+            max-width: 600px;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+        }
+
+        .quiz-title {
+            font-size: 2.5rem;
+            color: #228B22;
+            margin-bottom: 10px;
+        }
+
+        .quiz-meta {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .stats-row {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 12px;
+        }
+
+        .stat-item b {
+            display: block;
+            font-size: 1.5rem;
+            color: #333;
+        }
+
+        .actions {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .btn-host {
+            background-color: #fa2a55; /* Boss Pink-Red */
+            color: white;
+            border: none;
+            padding: 18px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-host:hover {
+            background-color: #d12246;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(250, 42, 85, 0.3);
+        }
+
+        .btn-back {
+            background: none;
+            border: 2px solid #ddd;
+            color: #888;
+            padding: 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-back:hover {
+            background: #eee;
+            color: #333;
+        }
     </style>
 </head>
 <body>
 
-    <div id="question-screen" class="container">
-        <div class="timer" id="timer">20</div>
-        <h1 id="question">Preparing Quiz...</h1>
-        <div class="options-grid">
-            <div class="option opt-1">▲ <span id="opt1"></span></div>
-            <div class="option opt-2">◆ <span id="opt2"></span></div>
-            <div class="option opt-3">● <span id="opt3"></span></div>
-            <div class="option opt-4">■ <span id="opt4"></span></div>
+    <div class="details-card">
+        <h1 class="quiz-title">Minecraft Trivia</h1>
+        <p class="quiz-meta">Created by <b>Sainu_214</b></p>
+
+        <div class="stats-row">
+            <div class="stat-item">
+                <b>10</b>
+                Questions
+            </div>
+            <div class="stat-item">
+                <b>1.2k</b>
+                Plays
+            </div>
+            <div class="stat-item">
+                <b>20s</b>
+                Per Question
+            </div>
+        </div>
+
+        <div class="actions">
+            <form action="/host-lobby" method="POST">
+                <input type="hidden" name="quiz_id" value="123">
+                <button type="submit" class="btn-host">Host Live 🟢</button>
+            </form>
+            
+            <button class="btn-back" onclick="window.history.back()">Go Back</button>
         </div>
     </div>
 
-    <div id="leaderboard-screen" class="container hidden">
-        <h1>Current Standings</h1>
-        <div id="leaderboard-data" style="text-align: left; font-size: 1.5rem;"></div>
-        <button class="btn-next" onclick="nextQuestion()">Next Question</button>
-    </div>
-
-    <div id="podium-screen" class="container hidden">
-        <h1>🏆 Quiz Complete! 🏆</h1>
-        <div class="podium">
-            <div class="step silver"><div class="name" id="p2">-</div>2nd</div>
-            <div class="step gold"><div class="name" id="p1">-</div>1st</div>
-            <div class="step bronze"><div class="name" id="p3">-</div>3rd</div>
-        </div>
-        <button class="btn-next" onclick="window.location.href='/discover'">Back to Home</button>
-    </div>
-
-    <script>
-        const socket = io("/");
-        let qIdx = 0;
-        let timer;
-
-        socket.emit('get_next_question', { index: qIdx });
-
-        socket.on('show_question', (data) => {
-            showScreen('question-screen');
-            document.getElementById('question').innerText = data.question;
-            document.getElementById('opt1').innerText = data.options[0];
-            document.getElementById('opt2').innerText = data.options[1];
-            document.getElementById('opt3').innerText = data.options[2];
-            document.getElementById('opt4').innerText = data.options[3];
-            startTimer();
-        });
-
-        socket.on('show_leaderboard', (players) => {
-            showScreen('leaderboard-screen');
-            const list = document.getElementById('leaderboard-data');
-            list.innerHTML = players.slice(0, 5).map((p, i) => 
-                `<div style="display:flex;justify-content:space-between;padding:10px;border-bottom:1px solid #4e6a85;">
-                    <span>${i+1}. ${p.name}</span><span>${p.score} pts</span>
-                </div>`).join('');
-        });
-
-        socket.on('show_final_podium', (players) => {
-            showScreen('podium-screen');
-            if(players[0]) document.getElementById('p1').innerText = players[0].name;
-            if(players[1]) document.getElementById('p2').innerText = players[1].name;
-            if(players[2]) document.getElementById('p3').innerText = players[2].name;
-        });
-
-        function showScreen(id) {
-            ['question-screen', 'leaderboard-screen', 'podium-screen'].forEach(s => {
-                document.getElementById(s).classList.add('hidden');
-            });
-            document.getElementById(id).classList.remove('hidden');
-        }
-
-        function startTimer() {
-            let time = 20;
-            document.getElementById('timer').innerText = time;
-            clearInterval(timer);
-            timer = setInterval(() => {
-                time--;
-                document.getElementById('timer').innerText = time;
-                if(time <= 0) {
-                    clearInterval(timer);
-                    socket.emit('request_leaderboard');
-                }
-            }, 1000);
-        }
-
-        function nextQuestion() {
-            qIdx++;
-            socket.emit('get_next_question', { index: qIdx });
-        }
-    </script>
 </body>
 </html>

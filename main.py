@@ -1,170 +1,154 @@
 import os
-import sqlite3
-import uvicorn
-from typing import List
-from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse, JSONResponse
-from fastapi.templating import Jinja2Templates
-from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
+import random
+import json
+from datetime import datetime
+from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask_sqlalchemy import SQLAlchemy
+from flask_socketio import SocketIO, emit, join_room, leave_room
 
-app = FastAPI()
+# --- 1. CONFIGURATION & IDENTITY ---
+app = Flask(__name__)
+app.config['SECRET_KEY'] = 'sainu_quiz_master_2026'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///sainuquiz.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# --- FILE PATH SETUP ---
-# BASE_DIR helps Railway find your folders regardless of its internal setup
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
+# Hardcoded Admin Data as requested
+ADMIN_USER = "Sainu_214"
+ADMIN_EMAIL = "sainu.quiz@gmail.com"
 
-# Ensure static folder exists and mount it
-static_path = os.path.join(BASE_DIR, "static")
-if not os.path.exists(static_path):
-    os.makedirs(static_path)
-app.mount("/static", StaticFiles(directory=static_path), name="static")
+db = SQLAlchemy(app)
+# Eventlet is the "secret sauce" for Railway to handle 80+ players smoothly
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
 
-# --- DATABASE SETUP ---
-def init_db():
-    # Path to the database file in the root directory
-    db_path = os.path.join(BASE_DIR, 'sainuquiz.db')
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
+# --- 2. DATABASE MODELS ---
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(50), unique=True, nullable=False)
+    email = db.Column(db.String(100), unique=True, nullable=False)
+    password = db.Column(db.String(100), nullable=False)
+
+class Quiz(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100), nullable=False)
+    questions_json = db.Column(db.Text, nullable=False) # Stores Qs as JSON string
+    creator_name = db.Column(db.String(50), default=ADMIN_USER)
+
+# --- 3. GLOBAL GAME ENGINE ---
+# Tracks active games: { "PIN": { "players": {sid: {name, score}}, "state": "lobby" } }
+active_rooms = {}
+
+# --- 4. WEB ROUTES ---
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        user = request.form.get('username')
+        if user == ADMIN_USER:
+            session['username'] = ADMIN_USER
+            session['email'] = ADMIN_EMAIL
+            return redirect(url_for('discover'))
+    return render_template('login.html')
+
+@app.route('/signup')
+def signup():
+    return render_template('signup.html')
+
+@app.route('/discover')
+def discover():
+    return render_template('discover.html')
+
+@app.route('/play')
+def play():
+    return render_template('play.html')
+
+@app.route('/gameplay', methods=['POST'])
+def gameplay():
+    # Pass data to the unified gameplay.html we built
+    context = {
+        'pin': request.form.get('pin'),
+        'nickname': request.form.get('nickname'),
+        'score': 0
+    }
+    return render_template('gameplay.html', data=context)
+
+# --- CREATOR SUBFOLDER ROUTES ---
+# These routes match your file tree (creator/view.html, etc.)
+@app.route('/creator')
+def creator_dashboard():
+    return render_template('creator.html')
+
+@app.route('/creator/create')
+def create_quiz():
+    return render_template('create.html')
+
+@app.route('/creator/live')
+def live_list():
+    return render_template('live/live.html')
+
+# --- 5. HOSTING & SOCKETS (The Spacebar logic) ---
+
+@app.route('/host/<int:quiz_id>')
+def host_game(quiz_id):
+    # Generates a unique 6-digit PIN for one of the 67+ games
+    game_pin = str(random.randint(100000, 999999))
+    active_rooms[game_pin] = {
+        'players': {},
+        'state': 'lobby',
+        'current_q': 0
+    }
+    return render_template('host.html', pin=game_pin)
+
+@socketio.on('join')
+def on_join(data):
+    room = data['pin']
+    name = data['nickname']
+    if room in active_rooms:
+        join_room(room)
+        active_rooms[room]['players'][request.sid] = {'name': name, 'score': 0}
+        # Update Host's lobby view
+        emit('player_list_update', list(active_rooms[room]['players'].values()), room=room)
+
+@socketio.on('next_step')
+def on_spacebar(data):
+    """ The logic triggered by the Spacebar on the Leaderboard/Host screen """
+    room = data['pin']
+    if room in active_rooms:
+        game = active_rooms[room]
+        
+        if game['state'] == 'lobby':
+            game['state'] = 'answering'
+            emit('trigger_phase', {'phase': 'answering'}, room=room)
+            
+        elif game['state'] == 'answering':
+            game['state'] = 'leaderboard'
+            # Sort players by score for the Top 5
+            leaderboard = sorted(game['players'].values(), key=lambda x: x['score'], reverse=True)[:5]
+            emit('trigger_phase', {'phase': 'leaderboard', 'data': leaderboard}, room=room)
+            
+        elif game['state'] == 'leaderboard':
+            game['state'] = 'answering'
+            game['current_q'] += 1
+            emit('trigger_phase', {'phase': 'answering', 'q_index': game['current_q']}, room=room)
+
+@socketio.on('submit_answer')
+def handle_answer(data):
+    room = data['pin']
+    if room in active_rooms and request.sid in active_rooms[room]['players']:
+        # Logic: 1000 base points - (seconds taken * 50)
+        time_penalty = data.get('time_taken', 0) * 50
+        earned_points = max(100, 1000 - time_penalty)
+        active_rooms[room]['players'][request.sid]['score'] += earned_points
+        emit('answer_locked', {'points': earned_points}, room=request.sid)
+
+# --- 6. RAILWAY PRODUCTION STARTUP ---
+if __name__ == '__main__':
+    with app.app_context():
+        db.create_all() # Generates sainuquiz.db if missing
     
-    # Table for Quizzes
-    cursor.execute('''CREATE TABLE IF NOT EXISTS questions 
-        (id INTEGER PRIMARY KEY AUTOINCREMENT, 
-         quiz_id INTEGER, 
-         quiz_name TEXT, 
-         question TEXT, 
-         option1 TEXT, 
-         option2 TEXT, 
-         option3 TEXT, 
-         option4 TEXT, 
-         correct INTEGER)''')
-    
-    # Table for User Profile
-    cursor.execute('''CREATE TABLE IF NOT EXISTS profile 
-        (id INTEGER PRIMARY KEY, nickname TEXT, email TEXT)''')
-    
-    # Default entry for Sainu if table is empty
-    cursor.execute("INSERT OR IGNORE INTO profile (id, nickname, email) VALUES (1, 'Sainu', 'saihan@example.com')")
-    
-    conn.commit()
-    conn.close()
-
-# Run database setup
-init_db()
-
-# --- DATA MODELS ---
-class QuestionData(BaseModel):
-    quiz_name: str
-    question: str
-    options: List[str]
-    correct: int
-
-class ProfileUpdate(BaseModel):
-    nickname: str
-    email: str
-
-# --- PAGE ROUTES ---
-# These match the .html files I see in your VS Code Explorer screenshot
-
-@app.get("/", response_class=HTMLResponse)
-async def home(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
-
-@app.get("/login", response_class=HTMLResponse)
-async def login_page(request: Request):
-    return templates.TemplateResponse("login.html", {"request": request})
-
-@app.get("/signup", response_class=HTMLResponse)
-async def signup_page(request: Request):
-    return templates.TemplateResponse("signup.html", {"request": request})
-
-@app.get("/my_quizzes", response_class=HTMLResponse)
-async def my_quizzes_page(request: Request):
-    db_path = os.path.join(BASE_DIR, 'sainuquiz.db')
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
-    cursor.execute("SELECT DISTINCT quiz_id, quiz_name FROM questions")
-    quizzes = cursor.fetchall()
-    conn.close()
-    return templates.TemplateResponse("my_quizzes.html", {"request": request, "quizzes": quizzes})
-
-@app.get("/discover", response_class=HTMLResponse)
-async def discover_page(request: Request):
-    return templates.TemplateResponse("discover.html", {"request": request})
-
-@app.get("/reports", response_class=HTMLResponse)
-async def reports_page(request: Request):
-    return templates.TemplateResponse("reports.html", {"request": request})
-
-@app.get("/account", response_class=HTMLResponse)
-async def account_page(request: Request):
-    db_path = os.path.join(BASE_DIR, 'sainuquiz.db')
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
-    cursor.execute("SELECT nickname, email FROM profile WHERE id = 1")
-    user = cursor.fetchone()
-    conn.close()
-    return templates.TemplateResponse("account.html", {
-        "request": request, 
-        "nickname": user[0] if user else "Sainu", 
-        "email": user[1] if user else ""
-    })
-
-@app.get("/subscription", response_class=HTMLResponse)
-async def subscription_page(request: Request):
-    return templates.TemplateResponse("subscription.html", {"request": request})
-
-@app.get("/create", response_class=HTMLResponse)
-async def create_page(request: Request):
-    return templates.TemplateResponse("create.html", {"request": request})
-
-@app.get("/play", response_class=HTMLResponse)
-async def play_page(request: Request):
-    return templates.TemplateResponse("play.html", {"request": request})
-
-@app.get("/gameplay", response_class=HTMLResponse)
-async def gameplay_page(request: Request):
-    return templates.TemplateResponse("gameplay.html", {"request": request})
-
-@app.get("/host", response_class=HTMLResponse)
-async def host_page(request: Request):
-    return templates.TemplateResponse("host.html", {"request": request})
-
-@app.get("/quiz", response_class=HTMLResponse)
-async def quiz_page(request: Request):
-    return templates.TemplateResponse("quiz.html", {"request": request})
-
-# --- API ROUTES ---
-
-@app.post("/save_question")
-async def save_question(data: QuestionData):
-    db_path = os.path.join(BASE_DIR, 'sainuquiz.db')
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
-    quiz_id = abs(hash(data.quiz_name)) % 10000 
-    cursor.execute('''INSERT INTO questions (quiz_id, quiz_name, question, option1, option2, option3, option4, correct) 
-                      VALUES (?, ?, ?, ?, ?, ?, ?, ?)''', 
-                   (quiz_id, data.quiz_name, data.question, data.options[0], data.options[1], 
-                    data.options[2], data.options[3], data.correct))
-    conn.commit()
-    conn.close()
-    return {"status": "success"}
-
-@app.post("/update_profile")
-async def update_profile(data: ProfileUpdate):
-    db_path = os.path.join(BASE_DIR, 'sainuquiz.db')
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
-    cursor.execute("UPDATE profile SET nickname = ?, email = ? WHERE id = 1", (data.nickname, data.email))
-    conn.commit()
-    conn.close()
-    return {"status": "success"}
-
-
-# --- PRODUCTION STARTUP ---
-if __name__ == "__main__":
-    # Railway provides the port via environment variables
-    port = int(os.environ.get("PORT", 8000))
-    # host must be 0.0.0.0 for the app to be public
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    # Railway binds to the PORT variable; default to 5000 locally
+    port = int(os.environ.get("PORT", 5000))
+    socketio.run(app, host='0.0.0.0', port=port, debug=False)
