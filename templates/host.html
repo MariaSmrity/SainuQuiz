@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SainuQuiz! - Hosting Lobby</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #2c3e50; color: white; text-align: center; padding: 20px; margin: 0; }
+        .host-container { background: #34495e; max-width: 700px; margin: 40px auto; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .badge { background: #18bf7c; display: inline-block; padding: 5px 15px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; margin-bottom: 10px; }
+        .pin-display { background: white; color: #18bf7c; font-size: 4rem; font-weight: bold; padding: 15px; border-radius: 10px; margin: 20px 0; display: inline-block; width: 80%; letter-spacing: 5px; }
+        .qr-section { margin: 20px 0; }
+        .qr-code img { background: white; padding: 10px; border-radius: 10px; }
+        .player-box { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin-top: 30px; }
+        .player-tag { background: #18bf7c; padding: 10px 20px; border-radius: 30px; display: flex; align-items: center; gap: 12px; font-weight: bold; }
+        .kick-btn { background: #e74c3c; color: white; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; }
+        .btn-start { background: #18bf7c; color: white; border: none; padding: 18px 50px; font-size: 1.5rem; font-weight: bold; border-radius: 12px; cursor: pointer; margin-top: 40px; width: 100%; }
+    </style>
+</head>
+<body>
+
+    <div class="host-container">
+        <div class="badge">HOSTING AS: {{ username }}</div>
+        <h1>Join the Game!</h1>
+        <p>Enter this PIN to join:</p>
+        
+        <div class="pin-display">{{ pin }}</div>
+
+        <div class="qr-section">
+            <div id="qrcode"></div>
+            <p style="font-size: 0.9rem; color: #bdc3c7;">Scan to join instantly</p>
+        </div>
+
+        <hr style="border: 0; border-top: 1px solid #4e6a85; margin: 30px 0;">
+        
+        <h3>Players: <span id="count" style="color: #18bf7c;">0</span></h3>
+        <div class="player-box" id="players"></div>
+
+        <button class="btn-start" onclick="startGame()">START GAME</button>
+    </div>
+
+    <script>
+        // FIXED: Force socket to connect to the root
+        const socket = io("/"); 
+        const currentPin = "{{ pin }}";
+
+        // Generate QR code using the absolute path /get_qr
+        const playUrl = window.location.origin + "/play?pin=" + currentPin;
+        document.getElementById('qrcode').innerHTML = `<img src="/get_qr?data=${encodeURIComponent(playUrl)}" width="150">`;
+
+        socket.on('update_players', (playerList) => {
+            const container = document.getElementById('players');
+            container.innerHTML = '';
+            document.getElementById('count').innerText = playerList.length;
+            
+            playerList.forEach(name => {
+                const playerDiv = document.createElement('div');
+                playerDiv.className = 'player-tag';
+                playerDiv.innerHTML = `<span>${name}</span><button class="kick-btn" onclick="kick('${name}')">✕</button>`;
+                container.appendChild(playerDiv);
+            });
+        });
+
+        function kick(name) {
+            if (confirm("Kick " + name + "?")) socket.emit('kick_player', name);
+        }
+
+        function startGame() {
+            socket.emit('start_request');
+        }
+    </script>
+</body>
+</html>

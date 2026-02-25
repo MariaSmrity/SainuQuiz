@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SainuQuiz! - Create Quiz</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; background-color: #f4f7f6; height: 100vh; }
+        
+        /* Sidebar */
+        .sidebar { width: 250px; background-color: white; border-right: 1px solid #ddd; display: flex; flex-direction: column; padding: 20px; flex-shrink: 0; }
+        .sidebar-brand { font-size: 1.5rem; font-weight: bold; color: #18bf7c; margin-bottom: 40px; text-decoration: none; }
+        .nav-item { padding: 12px 15px; text-decoration: none; color: #555; font-weight: 500; border-radius: 8px; margin-bottom: 5px; transition: 0.3s; display: flex; align-items: center; }
+        .nav-item:hover { background-color: #f0fdf4; color: #18bf7c; }
+        
+        /* Editor Area */
+        .main-content { flex: 1; padding: 40px; overflow-y: auto; display: flex; justify-content: center; }
+        .editor-card { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 700px; height: fit-content; }
+        h1 { color: #333; margin-top: 0; }
+        
+        .input-group { margin-bottom: 20px; }
+        label { display: block; font-weight: bold; margin-bottom: 8px; color: #555; }
+        input[type="text"] { width: 100%; padding: 12px; border: 2px solid #eee; border-radius: 10px; font-size: 1rem; box-sizing: border-box; }
+        input[type="text"]:focus { border-color: #18bf7c; outline: none; }
+        
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
+        .option-input { display: flex; align-items: center; background: #fafafa; padding: 10px; border-radius: 10px; border: 2px solid #eee; }
+        .option-input input[type="radio"] { margin-right: 10px; cursor: pointer; transform: scale(1.2); }
+        .option-input input[type="text"] { border: none; background: transparent; padding: 5px; }
+        
+        .btn-save { width: 100%; padding: 15px; background-color: #18bf7c; color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 1.1rem; cursor: pointer; margin-top: 30px; transition: 0.3s; }
+        .btn-save:hover { background-color: #14a369; transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <a href="/" class="sidebar-brand">SainuQuiz!</a>
+        <a href="/my_quizzes" class="nav-item">🏠 My Quizzes</a>
+        <a href="/discover" class="nav-item">🌐 Discover</a>
+        <a href="/reports" class="nav-item">📊 Reports</a>
+        <a href="/account" class="nav-item">👤 My Account</a>
+        <a href="/" class="nav-item">🚪 Logout</a>
+    </div>
+
+    <div class="main-content">
+        <div class="editor-card">
+            <h1>Create New Question</h1>
+            
+            <div class="input-group">
+                <label>Quiz Name</label>
+                <input type="text" id="quizName" placeholder="e.g., Science Trivia 2026">
+            </div>
+
+            <div class="input-group">
+                <label>Question Text</label>
+                <input type="text" id="questionText" placeholder="Enter your question here...">
+            </div>
+
+            <label>Answer Options (Select the correct one)</label>
+            <div class="options-grid">
+                <div class="option-input">
+                    <input type="radio" name="correct" value="1" checked>
+                    <input type="text" id="opt1" placeholder="Option 1">
+                </div>
+                <div class="option-input">
+                    <input type="radio" name="correct" value="2">
+                    <input type="text" id="opt2" placeholder="Option 2">
+                </div>
+                <div class="option-input">
+                    <input type="radio" name="correct" value="3">
+                    <input type="text" id="opt3" placeholder="Option 3">
+                </div>
+                <div class="option-input">
+                    <input type="radio" name="correct" value="4">
+                    <input type="text" id="opt4" placeholder="Option 4">
+                </div>
+            </div>
+
+            <button class="btn-save" onclick="saveQuestion()">Save Question & Finish</button>
+        </div>
+    </div>
+
+    <script>
+        async function saveQuestion() {
+            const data = {
+                quiz_name: document.getElementById('quizName').value,
+                question: document.getElementById('questionText').value,
+                options: [
+                    document.getElementById('opt1').value,
+                    document.getElementById('opt2').value,
+                    document.getElementById('opt3').value,
+                    document.getElementById('opt4').value
+                ],
+                correct: parseInt(document.querySelector('input[name="correct"]:checked').value)
+            };
+
+            if(!data.quiz_name || !data.question) {
+                alert("Please fill in the Quiz Name and Question!");
+                return;
+            }
+
+            const response = await fetch('/save_question', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            if (response.ok) {
+                alert("Question saved successfully!");
+                window.location.href = "/my_quizzes";
+            } else {
+                alert("Error saving question.");
+            }
+        }
+    </script>
+
+</body>
+</html>

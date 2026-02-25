@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SainuQuiz! - Get Pro</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; background-color: #f4f7f6; height: 100vh; overflow: hidden; }
+        .sidebar { width: 250px; background-color: white; border-right: 1px solid #ddd; display: flex; flex-direction: column; padding: 20px; flex-shrink: 0; height: 100%; box-sizing: border-box; }
+        .sidebar-brand { font-size: 1.5rem; font-weight: bold; color: #18bf7c; margin-bottom: 40px; text-decoration: none; }
+        .nav-links { flex-grow: 1; }
+        .nav-item { padding: 12px 15px; text-decoration: none; color: #555; font-weight: 500; border-radius: 8px; margin-bottom: 5px; display: block; transition: 0.3s; }
+        .nav-item:hover { background-color: #f0fdf4; color: #18bf7c; }
+        
+        .main-content { flex: 1; padding: 40px; display: flex; flex-direction: column; align-items: center; overflow-y: auto; }
+        .pricing-container { display: flex; gap: 30px; margin-top: 50px; width: 100%; max-width: 800px; }
+        
+        .price-card { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); flex: 1; text-align: center; border: 2px solid transparent; }
+        .price-card.featured { border-color: #ffab00; transform: scale(1.05); position: relative; }
+        
+        .price { font-size: 3rem; font-weight: bold; color: #18bf7c; margin: 20px 0; }
+        .price span { font-size: 1rem; color: #888; }
+        
+        .features { list-style: none; padding: 0; margin: 30px 0; text-align: left; }
+        .features li { margin-bottom: 12px; color: #666; }
+        .features li::before { content: "✓ "; color: #18bf7c; font-weight: bold; }
+        
+        .btn-sub { width: 100%; padding: 15px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-pro { background-color: #ffab00; color: white; font-size: 1.1rem; }
+        .btn-pro:hover { background-color: #e69a00; transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <a href="/" class="sidebar-brand">SainuQuiz!</a>
+        <div class="nav-links">
+            <a href="/my_quizzes" class="nav-item">🏠 My Quizzes</a>
+            <a href="/discover" class="nav-item">🌐 Discover</a>
+            <a href="/reports" class="nav-item">📊 Reports</a>
+            <a href="/account" class="nav-item">👤 My Account</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <h1>Upgrade Your Experience</h1>
+        <div class="pricing-container">
+            <div class="price-card">
+                <h2>Basic</h2>
+                <div class="price">€0<span>/mo</span></div>
+                <ul class="features">
+                    <li>Up to 10 players</li>
+                    <li>Basic Reports</li>
+                </ul>
+                <button class="btn-sub" style="background:#eee; color:#777;" disabled>Current Plan</button>
+            </div>
+
+            <div class="price-card featured">
+                <div style="background: #ffab00; color: white; padding: 5px 10px; border-radius: 20px; font-size: 0.8rem; position: absolute; top: -15px; left: 50%; transform: translateX(-50%); font-weight: bold;">MOST POPULAR</div>
+                <h2>Pro</h2>
+                <div class="price">€2.59<span>/mo</span></div>
+                <ul class="features">
+                    <li>Unlimited Players</li>
+                    <li>AI Quiz Generator</li>
+                    <li>Custom Branding</li>
+                </ul>
+                <button class="btn-sub btn-pro" onclick="startCheckout()">UPGRADE NOW</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function startCheckout() {
+            // This is where you put your payment link!
+            // Example: window.location.href = "https://paypal.me/yourusername/2.59";
+            window.location.href = "/checkout";
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SainuQuiz! - Join Game</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #18bf7c; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .play-card { background: white; color: #333; padding: 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 90%; max-width: 400px; text-align: center; }
+        h1 { color: #18bf7c; margin-bottom: 20px; }
+        input { width: 100%; padding: 15px; margin: 10px 0; border: 2px solid #eee; border-radius: 10px; font-size: 1.2rem; box-sizing: border-box; text-align: center; }
+        input:focus { border-color: #18bf7c; outline: none; }
+        .btn-join { background: #333; color: white; border: none; width: 100%; padding: 15px; border-radius: 10px; font-size: 1.2rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .btn-join:hover { background: #000; }
+        #lobby-status { display: none; margin-top: 20px; color: #18bf7c; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="play-card" id="join-section">
+        <h1>SainuQuiz!</h1>
+        <input type="text" id="gamePin" placeholder="Game PIN" maxlength="6">
+        <input type="text" id="playerName" placeholder="Nickname">
+        <button class="btn-join" onclick="joinLobby()">Enter</button>
+    </div>
+
+    <div class="play-card" id="lobby-section" style="display: none;">
+        <h1>You're In!</h1>
+        <p>Wait for the host to start the game...</p>
+        <div id="lobby-status">Connected to Lobby ✅</div>
+    </div>
+
+    <script>
+        const socket = io();
+
+        // Check if PIN is in the URL (from QR code)
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('pin')) {
+            document.getElementById('gamePin').value = urlParams.get('pin');
+        }
+
+        function joinLobby() {
+            const pin = document.getElementById('gamePin').value;
+            const name = document.getElementById('playerName').value;
+
+            if (pin && name) {
+                // Tell the server we are joining
+                socket.emit('join', { pin: pin, name: name });
+                
+                // Switch UI
+                document.getElementById('join-section').style.display = 'none';
+                document.getElementById('lobby-section').style.display = 'block';
+            } else {
+                alert("Please enter both a PIN and a Nickname!");
+            }
+        }
+
+        socket.on('game_started', () => {
+            alert("The game is starting now!");
+            // Later we will redirect to the first question here
+        });
+    </script>
+</body>
+</html>

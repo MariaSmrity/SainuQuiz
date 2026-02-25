@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SainuQuiz! - Home</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background-color: #f0f2f5; display: flex; flex-direction: column; min-height: 100vh; }
+        .navbar { background-color: #18bf7c; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .navbar-brand { font-size: 1.8rem; font-weight: bold; text-decoration: none; color: white; }
+        .nav-links a { color: white; text-decoration: none; margin-left: 20px; font-weight: 500; }
+        .hero { flex: 1; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        .hero-card { background: white; padding: 50px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; max-width: 600px; width: 100%; }
+        .hero-card h1 { color: #18bf7c; font-size: 2.5rem; margin-bottom: 15px; }
+        .hero-card p { color: #666; font-size: 1.1rem; line-height: 1.6; margin-bottom: 30px; }
+        .btn-container { display: flex; gap: 20px; justify-content: center; }
+        .btn { padding: 12px 30px; border-radius: 8px; font-size: 1rem; font-weight: bold; text-decoration: none; transition: 0.3s; cursor: pointer; }
+        .btn-primary { background-color: #18bf7c; color: white; border: none; }
+        .btn-secondary { background-color: transparent; color: #18bf7c; border: 2px solid #18bf7c; }
+        footer { text-align: center; padding: 20px; color: #888; font-size: 0.9rem; margin-top: auto; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/" class="navbar-brand">SainuQuiz!</a>
+        <div class="nav-links">
+            <a href="/login">Login</a>
+            <a href="/signup">Sign Up</a>
+        </div>
+    </nav>
+    <div class="hero">
+        <div class="hero-card">
+            <h1>Welcome to SainuQuiz!</h1>
+            <p>The ultimate platform to create, share, and play real-time quizzes with friends.</p>
+            <div class="btn-container">
+                <a href="/join" class="btn btn-primary">Join a Game</a>
+                <a href="/create" class="btn btn-secondary">Create Quiz</a>
+            </div>
+        </div>
+    </div>
+    <footer>© 2026 SainuQuiz! Project</footer>
+</body>
+</html>

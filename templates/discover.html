@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SainuQuiz! - Discover</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; background-color: #f4f7f6; height: 100vh; overflow: hidden; }
+        
+        /* Sidebar Styles */
+        .sidebar { width: 250px; background-color: white; border-right: 1px solid #ddd; display: flex; flex-direction: column; padding: 20px; flex-shrink: 0; height: 100%; box-sizing: border-box; }
+        .sidebar-brand { font-size: 1.5rem; font-weight: bold; color: #18bf7c; margin-bottom: 40px; text-decoration: none; }
+        .nav-links { flex-grow: 1; }
+        .nav-item { padding: 12px 15px; text-decoration: none; color: #555; font-weight: 500; border-radius: 8px; margin-bottom: 5px; display: block; transition: 0.3s; }
+        .nav-item:hover { background-color: #f0fdf4; color: #18bf7c; }
+        .nav-item.active { background-color: #18bf7c; color: white; }
+        
+        /* Pro Card pinned to bottom */
+        .pro-card { background: linear-gradient(135deg, #ffce67, #ffab00); padding: 15px; border-radius: 12px; margin-top: auto; color: white; text-align: center; }
+        .btn-pro { display: inline-block; margin-top: 10px; padding: 8px 15px; background: white; color: #ffab00; border-radius: 5px; text-decoration: none; font-weight: bold; font-size: 0.8rem; }
+
+        /* Main Content Area */
+        .main-content { flex: 1; padding: 40px; overflow-y: auto; }
+        .search-bar { width: 100%; padding: 15px; border-radius: 10px; border: 1px solid #ddd; margin-bottom: 30px; font-size: 1rem; box-sizing: border-box; }
+        
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+        
+        /* Empty State */
+        .empty-state { text-align: center; padding: 100px 20px; color: #888; background: white; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .empty-icon { font-size: 3rem; margin-bottom: 15px; display: block; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <a href="/" class="sidebar-brand">SainuQuiz!</a>
+        <div class="nav-links">
+            <a href="/my_quizzes" class="nav-item">🏠 My Quizzes</a>
+            <a href="/discover" class="nav-item active">🌐 Discover</a>
+            <a href="/reports" class="nav-item">📊 Reports</a>
+            <a href="/account" class="nav-item">👤 My Account</a>
+            <a href="/" class="nav-item">🚪 Logout</a>
+        </div>
+
+        <div class="pro-card">
+            <p style="margin:0; font-weight:bold;">SainuQuiz! Pro</p>
+            <p style="font-size: 0.75rem; margin: 5px 0;">Only 2.59€ / month</p>
+            <a href="/subscription" class="btn-pro">GET PRO</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <h1>Discover Quizzes</h1>
+        <input type="text" class="search-bar" placeholder="Search for quizzes...">
+
+        <div class="grid" id="quizGrid">
+            <div class="empty-state">
+                <span class="empty-icon">🔎</span>
+                <h2>No public quizzes found yet!</h2>
+                <p>Be the first to create a quiz and share it with the world.</p>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

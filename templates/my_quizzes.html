@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SainuQuiz! - My Quizzes</title>
+    <style>
+        /* Base Layout */
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            margin: 0; 
+            display: flex; 
+            background-color: #f4f7f6; 
+            height: 100vh; 
+            overflow: hidden; /* Prevents double scrollbars */
+        }
+        
+        /* SIDEBAR - The Fix is here */
+        .sidebar { 
+            width: 260px; 
+            background-color: white; 
+            border-right: 1px solid #ddd; 
+            display: flex; 
+            flex-direction: column; /* Stacks items vertically */
+            padding: 20px; 
+            flex-shrink: 0; 
+            height: 100%; /* Full height of the screen */
+            box-sizing: border-box;
+        }
+
+        .sidebar-brand { 
+            font-size: 1.5rem; 
+            font-weight: bold; 
+            color: #18bf7c; 
+            margin-bottom: 30px; 
+            text-decoration: none; 
+        }
+
+        /* Top part of sidebar */
+        .nav-links {
+            flex-grow: 1; /* This pushes everything below it to the bottom */
+        }
+
+        .nav-item { 
+            padding: 12px 15px; 
+            text-decoration: none; 
+            color: #555; 
+            font-weight: 500; 
+            border-radius: 8px; 
+            margin-bottom: 8px; 
+            display: block;
+            transition: 0.3s; 
+        }
+        .nav-item:hover { background-color: #f0fdf4; color: #18bf7c; }
+        .nav-item.active { background-color: #18bf7c; color: white; }
+        
+        /* BOTTOM PART - Get Pro Section */
+        .pro-card { 
+            background: linear-gradient(135deg, #ffce67, #ffab00); 
+            padding: 20px; 
+            border-radius: 15px; 
+            color: white; 
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(255, 171, 0, 0.3);
+        }
+        .btn-pro { 
+            display: block; 
+            margin-top: 12px; 
+            padding: 10px; 
+            background: white; 
+            color: #ffab00; 
+            border-radius: 8px; 
+            text-decoration: none; 
+            font-weight: bold; 
+            font-size: 0.9rem; 
+        }
+
+        /* Main Content */
+        .main-content { 
+            flex: 1; 
+            padding: 40px; 
+            overflow-y: auto; 
+        }
+        .header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 30px; 
+        }
+        .btn-new { 
+            background-color: #3498db; 
+            color: white; 
+            padding: 12px 24px; 
+            border-radius: 8px; 
+            text-decoration: none; 
+            font-weight: bold; 
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <a href="/" class="sidebar-brand">SainuQuiz!</a>
+        
+        <div class="nav-links">
+            <a href="/my_quizzes" class="nav-item active">🏠 My Quizzes</a>
+            <a href="/discover" class="nav-item">🌐 Discover</a>
+            <a href="/reports" class="nav-item">📊 Reports</a>
+            <a href="/account" class="nav-item">👤 My Account</a>
+            <a href="/" class="nav-item">🚪 Logout</a>
+        </div>
+
+        <div class="pro-card">
+            <p style="margin:0; font-weight:bold; font-size: 1.1rem;">SainuQuiz! Pro</p>
+            <p style="font-size: 0.8rem; margin: 8px 0;">Only 2.59€ / month</p>
+            <a href="/subscription" class="btn-pro">GET PRO</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h1>My Quizzes</h1>
+            <a href="/create" class="btn-new">+ New Quiz</a>
+        </div>
+
+        <div style="background: white; padding: 60px; border-radius: 15px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+            <h2>No quizzes yet!</h2>
+            <p style="color: #888;">Create your first quiz to see it here.</p>
+        </div>
+    </div>
+
+</body>
+</html>
